@@ -1,0 +1,36 @@
+.constellation-section {
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.canvas-wrapper {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  background: radial-gradient(circle at center, #182029 0%, #0d0f12 75%);
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#constellationCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.node-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(13, 15, 18, 0.9);
+  border: 1px solid var(--accent-teal);
+  color: var(--text-main);
+  padding: 0.5rem 0.9rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  display: none;
+  transform: translate(-50%, -130%);
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(0, 210, 180, 0.2);
+}

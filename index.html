@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Moravia Viva | Corporaciones que Transforman</title>
+  
+  <!-- Tipografías Editoriales -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Newsreader:ital,opsz,wght@0,6..72,400..800;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: '#FAF8F5',
+            surface: '#FFFFFF',
+            'surface-warm': '#F2ECE4',
+            charcoal: '#111827',
+            'charcoal-card': '#18201C',
+            muted: '#374151',
+            'border-soft': '#DCD4C8',
+            botanical: {
+              DEFAULT: '#14462B',
+              light: '#1E6B42',
+              dark: '#0D2D1B',
+              surface: '#E8F3ED'
+            },
+            terracotta: {
+              DEFAULT: '#A63F1D',
+              light: '#C75129',
+              surface: '#FBECE7'
+            },
+            ochre: {
+              DEFAULT: '#B46A0E',
+              light: '#D38117',
+              surface: '#FBF2E5'
+            },
+            cojardicom: {
+              DEFAULT: '#882255',
+              dark: '#5E1339',
+              surface: '#FDF0F6'
+            }
+          },
+          fontFamily: {
+            serif: ['Newsreader', 'Georgia', 'serif'],
+            display: ['Cinzel', 'serif'],
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .dropcap::first-letter {
+      float: left;
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: 5rem;
+      line-height: 0.8;
+      padding-top: 4px;
+      padding-right: 14px;
+      padding-bottom: 2px;
+      color: #14462B;
+      font-weight: 800;
+    }
+
+    #moraviaMap {
+      width: 100% !important;
+      height: 600px !important;
+      background-color: #0E1411 !important;
+      z-index: 10;
+    }
+    #moraviaMap .leaflet-tile-pane {
+      filter: brightness(0.65) invert(1) contrast(2.2) hue-rotate(190deg) saturate(0.35);
+    }
+    .leaflet-container {
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+      background: #0E1411 !important;
+    }
+    .leaflet-popup-content-wrapper {
+      background: #111827 !important;
+      color: #FAF8F5 !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      border-radius: 16px !important;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.6) !important;
+      padding: 6px !important;
+    }
+    .leaflet-popup-tip {
+      background: #111827 !important;
+    }
+
+    @keyframes markerPulse {
+      0% { transform: scale(0.9); opacity: 0.9; }
+      50% { transform: scale(1.4); opacity: 0.3; }
+      100% { transform: scale(0.9); opacity: 0.9; }
+    }
+    .marker-pulse {
+      animation: markerPulse 2.6s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-paper text-charcoal font-sans antialiased selection:bg-botanical selection:text-paper overflow-x-hidden">
+
+  <!-- BARRA DE PROGRESO DE LECTURA -->
+  <div id="progressBar" class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-botanical via-ochre to-terracotta w-0 z-50 transition-all duration-150"></div>
+
+  <!-- CABECERA ESPACIOSA (h-24) -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-[#FAF8F5]/96 backdrop-blur-md border-b border-border-soft shadow-xs transition-all duration-200">
+    <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 h-24 flex items-center justify-between">
+      
+      <!-- LOGO Y TÍTULO -->
+      <a href="#inicio" class="flex items-center gap-4 group">
+        <div class="w-12 h-12 rounded-2xl bg-botanical text-paper flex items-center justify-center font-display font-bold text-2xl shadow-md group-hover:bg-botanical-light transition-all">
+          M
+        </div>
+        <div class="flex flex-col">
+          <span class="font-serif font-extrabold text-2xl sm:text-3xl tracking-tight text-charcoal group-hover:text-botanical transition-colors">Moravia Viva</span>
+          <span class="text-xs font-bold tracking-[0.2em] text-terracotta uppercase">Comuna 4 · Medellín</span>
+        </div>
+      </a>
+
+      <!-- CENTRO: ÚNICAMENTE LAS TRES ASOCIACIONES -->
+      <nav class="hidden md:flex items-center gap-4 lg:gap-6">
+        <button onclick="openLiveExperience('cojardicom')" class="px-5 py-2.5 rounded-full bg-cojardicom-surface text-cojardicom border border-cojardicom/30 hover:bg-cojardicom hover:text-white transition-all text-xs lg:text-sm font-extrabold flex items-center gap-2 shadow-2xs">
+          <span class="w-2.5 h-2.5 rounded-full bg-cojardicom"></span>
+          <span>Cojardicom</span>
+        </button>
+
+        <button onclick="document.getElementById('abracadabra-block').scrollIntoView({behavior:'smooth'})" class="px-5 py-2.5 rounded-full bg-terracotta-surface text-terracotta border border-terracotta/30 hover:bg-terracotta hover:text-white transition-all text-xs lg:text-sm font-extrabold flex items-center gap-2 shadow-2xs">
+          <span class="w-2.5 h-2.5 rounded-full bg-terracotta"></span>
+          <span>Abracadabra</span>
+        </button>
+
+        <button onclick="openLiveExperience('jarum')" class="px-5 py-2.5 rounded-full bg-ochre-surface text-ochre border border-ochre/30 hover:bg-ochre hover:text-white transition-all text-xs lg:text-sm font-extrabold flex items-center gap-2 shadow-2xs">
+          <span class="w-2.5 h-2.5 rounded-full bg-ochre"></span>
+          <span>Jarum</span>
+        </button>
+      </nav>
+
+      <!-- DERECHA: MENÚ DESPLEGABLE COMPLETAMENTE OPACO -->
+      <div class="relative flex items-center gap-3" id="dropdownMenuWrapper">
+        <button id="dropdownTriggerBtn" onclick="toggleRightMenu()" class="px-5 py-2.5 rounded-full border-2 border-border-soft bg-surface hover:bg-surface-warm font-sans font-extrabold text-xs sm:text-sm uppercase tracking-wider text-charcoal shadow-2xs transition-all flex items-center gap-2.5 group">
+          <span>Explorar</span>
+          <svg id="dropdownChevron" class="w-4 h-4 text-muted group-hover:text-charcoal transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+
+        <!-- Panel del Desplegable (Fondo Blanco Sólido y Borde Grueso para cero transparencia) -->
+        <div id="rightNavDropdown" class="hidden absolute right-0 top-full mt-3 w-72 bg-white rounded-2xl border-2 border-border-soft shadow-2xl p-3 z-50 transform origin-top-right transition-all">
+          <div class="px-3.5 py-2 border-b border-border-soft mb-1 text-[11px] font-bold uppercase tracking-widest text-muted">
+            Índice del Reportaje
+          </div>
+
+          <ul class="space-y-1 font-sans text-xs sm:text-sm font-bold text-charcoal">
+            <li>
+              <button onclick="toggleRightMenu(); toggleModal('modalPresentacion')" class="w-full text-left px-3.5 py-2.5 rounded-xl hover:bg-botanical hover:text-white transition-colors flex items-center justify-between group">
+                <span class="flex items-center gap-2.5">
+                  <span class="w-2 h-2 rounded-full bg-botanical group-hover:bg-white"></span>
+                  <span>Territorio y Memoria</span>
+                </span>
+                <span class="text-[10px] uppercase font-mono opacity-60">Ficha</span>
+              </button>
+            </li>
+            <li>
+              <a href="#mapa-territorial" onclick="toggleRightMenu()" class="block px-3.5 py-2.5 rounded-xl hover:bg-botanical hover:text-white transition-colors flex items-center justify-between group">
+                <span class="flex items-center gap-2.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 group-hover:bg-white"></span>
+                  <span>Ubicación de Organizaciones</span>
+                </span>
+                <span class="text-[10px] uppercase font-mono opacity-60">Mapa</span>
+              </a>
+            </li>
+            <li>
+              <a href="#guias" onclick="toggleRightMenu()" class="block px-3.5 py-2.5 rounded-xl hover:bg-botanical hover:text-white transition-colors flex items-center justify-between group">
+                <span class="flex items-center gap-2.5">
+                  <span class="w-2 h-2 rounded-full bg-ochre group-hover:bg-white"></span>
+                  <span>Crónicas de Campo</span>
+                </span>
+                <span class="text-[10px] uppercase font-mono opacity-60">Relatos</span>
+              </a>
+            </li>
+            <li>
+              <a href="#equipo" onclick="toggleRightMenu()" class="block px-3.5 py-2.5 rounded-xl hover:bg-botanical hover:text-white transition-colors flex items-center justify-between group">
+                <span class="flex items-center gap-2.5">
+                  <span class="w-2 h-2 rounded-full bg-terracotta group-hover:bg-white"></span>
+                  <span>Equipo Investigador</span>
+                </span>
+                <span class="text-[10px] uppercase font-mono opacity-60">Autores</span>
+              </a>
+            </li>
+          </ul>
+
+          <div class="md:hidden pt-2 mt-2 border-t border-border-soft space-y-1">
+            <button onclick="toggleRightMenu(); openLiveExperience('cojardicom')" class="w-full text-left px-3.5 py-2 rounded-lg bg-cojardicom-surface text-cojardicom text-xs font-bold">
+              Abrir Recorrido Cojardicom &rarr;
+            </button>
+            <button onclick="toggleRightMenu(); openLiveExperience('jarum')" class="w-full text-left px-3.5 py-2 rounded-lg bg-ochre-surface text-ochre text-xs font-bold">
+              Abrir Plataforma JARUM &rarr;
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="pt-24">
+
+    <!-- PORTADA HERO -->
+    <section id="inicio" class="relative overflow-hidden pt-12 pb-20 sm:pt-20 sm:pb-28 border-b border-border-soft bg-gradient-to-b from-[#F7F3EE] via-paper to-paper">
+      <div class="absolute inset-0 opacity-[0.035] pointer-events-none bg-[radial-gradient(#14462B_1px,transparent_1px)] [background-size:20px_20px]"></div>
+
+      <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          
+          <div class="lg:col-span-7 space-y-6 text-left">
+            <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-surface border border-border-soft text-xs font-bold tracking-widest text-charcoal uppercase shadow-2xs">
+              <span class="w-2 h-2 rounded-full bg-botanical animate-pulse"></span>
+              <span class="text-botanical">Investigación Territorial</span>
+              <span class="w-1 h-1 rounded-full bg-border-soft"></span>
+              <span>UPB Medellín</span>
+            </div>
+
+            <h1 class="font-serif text-6xl sm:text-7xl md:text-8xl font-black tracking-tight text-charcoal leading-[0.98]">
+              Moravia <br><span class="italic font-light text-botanical">Viva</span>
+            </h1>
+
+            <div class="flex items-center gap-3 pt-1">
+              <span class="font-display tracking-[0.25em] text-sm sm:text-base font-extrabold text-terracotta uppercase">
+                Por una Vida Digna
+              </span>
+              <div class="h-0.5 bg-terracotta/40 flex-1 max-w-[120px]"></div>
+            </div>
+
+            <p class="font-serif text-xl sm:text-2xl text-charcoal leading-relaxed font-normal">
+              Este reportaje documenta la resistencia comunitaria, la soberanía barrial y la hermandad que transformaron la antigua montaña de desechos de Medellín en un pulmón ecológico guiado por sus propios pobladores.
+            </p>
+
+            <div class="pt-4 flex flex-wrap items-center gap-4">
+              <a href="#mapa-territorial" class="px-7 py-3.5 rounded-full bg-botanical hover:bg-botanical-light text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-md flex items-center gap-2">
+                <span>Ver Ubicación de Organizaciones</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+              </a>
+              <button onclick="toggleModal('modalPresentacion')" class="px-6 py-3.5 rounded-full bg-surface border border-border-soft hover:bg-surface-warm text-charcoal font-bold text-xs sm:text-sm uppercase tracking-wider transition-colors shadow-2xs">
+                Ficha del Proyecto
+              </button>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5">
+            <div class="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-border-soft bg-charcoal group">
+              <img 
+                src="img/hero-moravia.jpg" 
+                alt="Panorámica urbana de Moravia y el valle de Medellín" 
+                class="w-full h-[460px] sm:h-[500px] object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90"
+                onerror="this.src='https://images.unsplash.com/photo-1518481612222-68bbe828ecd1?auto=format&fit=crop&w=1200&q=80'"
+              >
+              <div class="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/30 to-transparent"></div>
+
+              <div class="absolute top-5 left-5 right-5 flex items-center justify-between pointer-events-none">
+                <span class="px-3.5 py-1.5 rounded-full bg-charcoal/85 backdrop-blur-md border border-white/20 text-white font-mono text-xs font-bold shadow-md">
+                  📍 Comuna 4 · El Morro
+                </span>
+                <span class="px-3 py-1.5 rounded-full bg-botanical text-white text-xs font-extrabold uppercase tracking-wider shadow-md">
+                  Vanguardia Botánica
+                </span>
+              </div>
+
+              <div class="absolute bottom-6 left-6 right-6 text-paper space-y-2">
+                <span class="text-xs font-mono font-bold uppercase tracking-widest text-ochre">Santuario Comunitario</span>
+                <h4 class="font-serif text-2xl font-bold leading-snug">De botadero a cielo abierto a jardín de fitorremediación</h4>
+                <p class="font-serif text-xs sm:text-sm text-paper/80 italic">El Morro Florecido: 30.000 metros cuadrados de recuperación viva.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: MAPA TERRITORIAL DE LAS 3 ORGANIZACIONES (OPENSTREETMAP) -->
+    <section id="mapa-territorial" class="py-20 sm:py-28 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 border-b border-border-soft">
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <span class="text-xs sm:text-sm font-bold uppercase tracking-[0.28em] text-botanical">Cartografía Barrial</span>
+        <h2 class="font-serif text-4xl sm:text-5xl md:text-6xl text-charcoal mt-2 mb-4 font-bold">
+          Corporaciones que transforman
+        </h2>
+        <p class="font-serif text-lg sm:text-xl text-charcoal leading-relaxed">
+          Localización de las tres organizaciones comunitarias en el sector de El Morro. Haz clic en cualquiera de los marcadores para centrar el mapa y acceder a sus detalles.
+        </p>
+      </div>
+
+      <div class="relative w-full rounded-3xl border-2 border-charcoal bg-charcoal shadow-2xl overflow-hidden">
+        
+        <div class="absolute top-4 left-4 right-4 z-[400] flex flex-wrap items-center justify-between gap-3 pointer-events-none">
+          <div class="pointer-events-auto flex items-center gap-2 bg-charcoal/95 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-xs sm:text-sm font-bold text-white shadow-lg">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>Área de El Morro (7,6 ha)</span>
+          </div>
+
+          <div class="pointer-events-auto flex items-center gap-2 bg-charcoal/95 backdrop-blur-md p-1.5 rounded-full border border-white/20 shadow-lg text-xs font-bold">
+            <button onclick="flyToOrg('cojardicom')" class="px-3 py-1.5 rounded-full text-white/90 hover:text-white hover:bg-cojardicom transition-colors">Cojardicom</button>
+            <button onclick="flyToOrg('abracadabra')" class="px-3 py-1.5 rounded-full text-white/90 hover:text-white hover:bg-terracotta transition-colors">Abracadabra</button>
+            <button onclick="flyToOrg('jarum')" class="px-3 py-1.5 rounded-full text-white/90 hover:text-white hover:bg-ochre transition-colors">JARUM</button>
+            <button onclick="resetMapView()" class="px-3 py-1.5 rounded-full text-white/70 hover:text-white hover:bg-white/20 transition-colors">Centrar</button>
+          </div>
+        </div>
+
+        <!-- Contenedor del Mapa Leaflet -->
+        <div id="moraviaMap"></div>
+
+        <div class="border-t border-white/10 bg-[#0e1411] px-6 py-4 flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm text-paper font-medium">
+          <div class="flex items-center gap-6 flex-wrap">
+            <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-[#10B981] border border-white/40"></span> <strong>Perímetro El Morro</strong></span>
+            <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-[#882255]"></span> Cojardicom</span>
+            <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-[#D4633B]"></span> Abracadabra</span>
+            <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-[#E29023]"></span> JARUM</span>
+          </div>
+          <span class="text-xs text-paper/60 font-mono">OpenStreetMap · Comuna 4</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 3: BLOQUES DE LAS 3 CORPORACIONES (SOLO BOTÓN "VER RECORRIDO") -->
+    <section class="py-20 sm:py-28 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 space-y-28">
+
+      <!-- BLOQUE 1: COJARDICOM -->
+      <article id="cojardicom-block" class="scroll-mt-28 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        <div class="lg:col-span-6 space-y-6">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cojardicom-surface text-cojardicom font-bold text-xs tracking-wider uppercase border border-cojardicom/20">
+            <span class="w-2 h-2 rounded-full bg-cojardicom"></span> Corporación 01 · Jardineras y Jardineros
+          </div>
+          
+          <h3 class="font-serif text-4xl sm:text-5xl text-charcoal leading-snug font-bold">
+            Cojardicom: Raíces que sanan la montaña de basura
+          </h3>
+          
+          <div class="font-serif text-charcoal text-lg sm:text-xl leading-relaxed space-y-4">
+            <p>
+              Fundada en 2014, la Corporación de Jardineras y Jardineros Comunitarios de Moravia (Cojardicom) canalizó décadas de reclamo por la vida digna en un oficio botánico transformador. Lo que inició como supervivencia en torno al botadero municipal se convirtió en la mayor experiencia de recuperación ecológica comunitaria de Medellín.
+            </p>
+            <p class="text-muted text-base sm:text-lg">
+              Lideresas como Elsy Torreglosa y Rosa Giraldo consolidaron técnicas de fitorremediación y semilleros ornamentales, demostrando que donde la ciudad descargó 1,5 millones de toneladas de residuos hoy florece patrimonio botánico vivo.
+            </p>
+          </div>
+
+          <div class="pt-2">
+            <button onclick="openLiveExperience('cojardicom')" class="px-7 py-3.5 rounded-full bg-cojardicom text-white text-xs sm:text-sm font-bold uppercase tracking-wider hover:bg-cojardicom-dark transition-colors shadow-md flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <span>Ver Recorrido</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6">
+          <div class="relative rounded-3xl overflow-hidden shadow-xl border-2 border-border-soft bg-surface group cursor-pointer" onclick="openLiveExperience('cojardicom')">
+            <img 
+              src="img/cojardicom.jpg" 
+              alt="Jardines comunitarios y fitorremediación en Moravia" 
+              class="w-full h-[420px] object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+              onerror="this.src='https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=1200&q=80'"
+            >
+            <div class="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/20 to-transparent"></div>
+            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-charcoal/40 backdrop-blur-xs">
+              <span class="px-6 py-3 rounded-full bg-cojardicom text-white text-xs sm:text-sm font-bold uppercase tracking-wider shadow-lg">
+                Ver Recorrido Cojardicom
+              </span>
+            </div>
+            <div class="absolute bottom-5 left-6 right-6 text-paper flex items-end justify-between">
+              <div>
+                <span class="text-xs uppercase tracking-widest text-ochre font-bold">Memoria Botánica</span>
+                <p class="font-serif text-sm sm:text-base">Invernadero y parcelas ornamentales cultivadas en la cima.</p>
+              </div>
+              <span class="font-serif font-bold text-sm bg-paper text-cojardicom px-3 py-1 rounded-lg">COJ</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- BLOQUE 2: ABRACADABRA ACADEMIA DE DANZA (ACTUALIZADO) -->
+      <article id="abracadabra-block" class="scroll-mt-28 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        <div class="lg:col-span-6 order-2 lg:order-1">
+          <div class="relative rounded-3xl overflow-hidden shadow-xl border-2 border-border-soft bg-surface group cursor-pointer" onclick="toggleModal('modalAbracadabra')">
+            <img 
+              src="img/abracadabra.jpeg" 
+              alt="Abracadabra Academia de Danza en Moravia" 
+              class="w-full h-[420px] object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+              onerror="this.src='https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80'"
+            >
+            <div class="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/20 to-transparent"></div>
+            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-charcoal/40 backdrop-blur-xs">
+              <span class="px-6 py-3 rounded-full bg-terracotta text-white text-xs sm:text-sm font-bold uppercase tracking-wider shadow-lg">
+                Ver Recorrido Abracadabra
+              </span>
+            </div>
+            <div class="absolute bottom-5 left-6 right-6 text-paper">
+              <span class="text-xs uppercase tracking-widest text-terracotta-light font-bold">Expresión &amp; Baile</span>
+              <p class="font-serif text-sm sm:text-base">Espacio cultural de danza y semilleros artísticos en el barrio.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 order-1 lg:order-2 space-y-6">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-terracotta-surface text-terracotta font-bold text-xs tracking-wider uppercase border border-terracotta/20">
+            <span class="w-2 h-2 rounded-full bg-terracotta"></span> Corporación 02 · Arte, Danza e Infancia
+          </div>
+          
+          <h3 class="font-serif text-4xl sm:text-5xl text-charcoal leading-snug font-bold">
+            Abracadabra: Academia de Danza y Crecimiento Personal
+          </h3>
+          
+          <div class="font-serif text-charcoal text-lg sm:text-xl leading-relaxed space-y-4">
+            <p>
+              Abracadabra Academia de Danza, ubicada en el barrio Moravia de Medellín, es un espacio cultural que promueve la formación artística de niños, niñas y adolescentes a través del baile.
+            </p>
+            <p class="text-muted text-base sm:text-lg">
+              Además, trabaja de la mano con otras corporaciones para desarrollar semilleros artísticos, brindando a sus integrantes oportunidades de formación, participación y crecimiento personal a través del arte.
+            </p>
+          </div>
+
+          <div class="pt-2">
+            <button onclick="toggleModal('modalAbracadabra')" class="px-7 py-3.5 rounded-full bg-terracotta text-white text-xs sm:text-sm font-bold uppercase tracking-wider hover:bg-terracotta-dark transition-colors shadow-md flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <span>Ver Recorrido</span>
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- BLOQUE 3: JARUM -->
+      <article id="jarum-block" class="scroll-mt-28 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        <div class="lg:col-span-6 space-y-6">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-ochre-surface text-ochre font-bold text-xs tracking-wider uppercase border border-ochre/20">
+            <span class="w-2 h-2 rounded-full bg-ochre"></span> Corporación 03 · Jardineros Unidos de Moravia
+          </div>
+          
+          <h3 class="font-serif text-4xl sm:text-5xl text-charcoal leading-snug font-bold">
+            Jarum: Guardianes del Ecosistema y Senderos Vivos
+          </h3>
+          
+          <div class="font-serif text-charcoal text-lg sm:text-xl leading-relaxed space-y-4">
+            <p>
+              Nacida en febrero de 2016 como fruto del proceso de intervención paisajística y social, Jarum asumió el compromiso de cuidar el cerro reverdecido. Como afirma Don William Gómez: <em>«Un jardín sin jardineros se vuelve monte; uno no siembra para ver crecer una planta, sino para que el barrio crezca»</em>.
+            </p>
+            <p class="text-muted text-base sm:text-lg">
+              Hoy lideran semilleros ambientales infantiles, proyectos de Compost Escuela en la I.E. El Bosque y sancochos comunitarios tras las jornadas de reciclaje, con la misión de reforestar Antioquia mediante especies nativas.
+            </p>
+          </div>
+
+          <div class="pt-2">
+            <button onclick="openLiveExperience('jarum')" class="px-7 py-3.5 rounded-full bg-ochre text-white text-xs sm:text-sm font-bold uppercase tracking-wider hover:bg-ochre-dark transition-colors shadow-md flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <span>Ver Recorrido</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6">
+          <div class="relative rounded-3xl overflow-hidden shadow-xl border-2 border-border-soft bg-surface group cursor-pointer" onclick="openLiveExperience('jarum')">
+            <img 
+              src="img/jarum.jpg" 
+              alt="Vivero y semillero comunitario de Jarum" 
+              class="w-full h-[420px] object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+              onerror="this.src='https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1200&q=80'"
+            >
+            <div class="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/20 to-transparent"></div>
+            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-charcoal/40 backdrop-blur-xs">
+              <span class="px-6 py-3 rounded-full bg-ochre text-white text-xs sm:text-sm font-bold uppercase tracking-wider shadow-lg">
+                Ver Recorrido JARUM
+              </span>
+            </div>
+            <div class="absolute bottom-5 left-6 right-6 text-paper flex items-end justify-between">
+              <div>
+                <span class="text-xs uppercase tracking-widest text-ochre font-bold">Cuidado Botánico</span>
+                <p class="font-serif text-sm sm:text-base">Vivero de plantas nativas y senderismo pedagógico.</p>
+              </div>
+              <span class="font-serif font-bold text-sm bg-paper text-ochre px-3 py-1 rounded-lg">JAR</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- SECCIÓN 4: MINI TEXTOS GUÍA -->
+    <section id="guias" class="py-20 sm:py-28 bg-surface-warm/60 border-y border-border-soft">
+      <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+        <div class="max-w-3xl mx-auto text-center mb-16">
+          <span class="text-xs sm:text-sm font-bold uppercase tracking-[0.28em] text-botanical">Archivos Documentales de Campo</span>
+          <h2 class="font-serif text-4xl sm:text-5xl text-charcoal mt-2 mb-4 font-bold">
+            Mini Textos Guía
+          </h2>
+          <p class="font-serif text-lg sm:text-xl text-charcoal">
+            Compilación testimonial y ensayística registrada por Brunella Angobaldo Pacora y Audrey Rodríguez.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          <!-- Card 1: Brunella -->
+          <div class="bg-surface rounded-3xl p-8 border-2 border-border-soft shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div>
+              <div class="flex items-center justify-between text-xs font-extrabold uppercase tracking-wider text-botanical mb-4">
+                <span>Crónica Narrativa</span>
+                <span>01</span>
+              </div>
+              <h3 class="font-serif text-2xl sm:text-3xl text-charcoal mb-3 leading-snug font-bold">
+                Los jardineros que sembraron vida donde hubo basura
+              </h3>
+              <p class="font-serif text-muted text-base leading-relaxed mb-6">
+                «Subir al Morro de Moravia es caminar sobre una contradicción. Bajo la suela hay décadas de desechos; a los lados, barquillos, durantas y cintillas se mecen con la brisa...» Crónica sobre Don William Gómez y Jarum.
+              </p>
+            </div>
+            <button onclick="openReading('cronica')" class="w-full py-3 px-4 rounded-xl border border-border-soft bg-paper hover:bg-botanical hover:text-white hover:border-botanical text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors text-charcoal">
+              Leer Crónica Completa &rarr;
+            </button>
+          </div>
+
+          <!-- Card 2: Elsy Torreglosa -->
+          <div class="bg-surface rounded-3xl p-8 border-2 border-cojardicom/40 shadow-xs flex flex-col justify-between hover:border-cojardicom transition-colors">
+            <div>
+              <div class="flex items-center justify-between text-xs font-extrabold uppercase tracking-wider text-cojardicom mb-4">
+                <span>Testimonio Directo</span>
+                <span>02</span>
+              </div>
+              <h3 class="font-serif text-2xl sm:text-3xl text-charcoal mb-3 leading-snug font-bold">
+                Sembrar donde antes todo era basura
+              </h3>
+              <blockquote class="border-l-4 border-cojardicom pl-4 italic font-serif text-charcoal text-base sm:text-lg mb-6 leading-relaxed">
+                «Llegué desplazada del Chocó con mis cuatro hijos a un cerro de desperdicios. Hoy, en ese mismo suelo donde levantamos techos a oscuras, cuido raíces para no olvidar de dónde venimos.»
+              </blockquote>
+            </div>
+            <button onclick="openReading('elsy')" class="w-full py-3 px-4 rounded-xl bg-cojardicom text-white hover:bg-cojardicom-dark text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors shadow-xs">
+              Leer Relato de Doña Elsy &rarr;
+            </button>
+          </div>
+
+          <!-- Card 3: Ensayo -->
+          <div class="bg-surface rounded-3xl p-8 border-2 border-border-soft shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div>
+              <div class="flex items-center justify-between text-xs font-extrabold uppercase tracking-wider text-ochre mb-4">
+                <span>Ensayo Crítico</span>
+                <span>03</span>
+              </div>
+              <h3 class="font-serif text-2xl sm:text-3xl text-charcoal mb-3 leading-snug font-bold">
+                La retórica del desalojo y la dignidad barrial
+              </h3>
+              <p class="font-serif text-muted text-base leading-relaxed mb-6">
+                Texto continuo sin imágenes: análisis sobre cómo la estigmatización institucional ignoró la compleja red de urbanismo popular, comités de tugurianos y teología de la liberación que levantó el barrio.
+              </p>
+            </div>
+            <button onclick="openReading('ensayo')" class="w-full py-3 px-4 rounded-xl border border-border-soft bg-paper hover:bg-ochre hover:text-white hover:border-ochre text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors text-charcoal">
+              Leer Ensayo Completo &rarr;
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 5: EQUIPO INVESTIGADOR (BRUNELLA & AUDREY UNIFICADAS) -->
+    <section id="equipo" class="py-20 sm:py-28 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="max-w-3xl mx-auto text-center mb-16">
+        <span class="text-xs sm:text-sm font-bold uppercase tracking-[0.28em] text-botanical">Curaduría, Investigación &amp; Realización</span>
+        <h2 class="font-serif text-4xl sm:text-5xl text-charcoal font-bold mt-2 mb-4">
+          Equipo Desarrollador e Investigador
+        </h2>
+        <p class="font-serif text-lg sm:text-xl text-charcoal leading-relaxed">
+          Estudiantes de la Facultad de Periodismo y Comunicación de la Universidad Pontificia Bolivariana (UPB) detrás de la investigación territorial, el archivo documental y la arquitectura narrativa de Moravia Viva.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+        
+        <!-- Ficha 1: Brunella Angobaldo Pacora -->
+        <div class="bg-surface rounded-3xl p-8 sm:p-12 border-2 border-border-soft shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div>
+            <div class="relative w-48 h-48 mx-auto mt-2 mb-8 p-2 rounded-3xl bg-surface-warm border-2 border-border-soft shadow-lg group">
+              <img 
+                id="fotoBrunella"
+                src="img/brunella.jpeg" 
+                alt="Brunella Angobaldo Pacora" 
+                class="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
+                onerror="this.src='https://placehold.co/500x500/E8F3ED/14462B?text=Foto+Brunella'"
+              >
+            </div>
+
+            <div class="text-center mb-6">
+              <h3 class="font-serif text-3xl sm:text-4xl text-charcoal font-bold">
+                Brunella Angobaldo Pacora
+              </h3>
+              <p class="font-sans text-xs sm:text-sm font-semibold text-terracotta uppercase tracking-wider mt-1.5">
+                Estudiante de la Facultad de Periodismo y Comunicación
+              </p>
+            </div>
+
+            <div class="font-serif text-charcoal text-base sm:text-lg leading-relaxed space-y-4 border-t border-border-soft pt-6 text-left">
+              <p>
+                Me llamo Brunella Angobaldo Pacora y soy estudiante de comunicación social y periodismo de la UPB.
+              </p>
+              <p class="text-muted text-base leading-relaxed">
+                Agradezco la disposición de Don William Gómez y Alejandra Fabra por recibirme con las puertas abiertas y dejarme entrar a experimentar cómo se crea en Jarum.
+              </p>
+            </div>
+          </div>
+
+          <!-- UPB Medellín Centrado -->
+          <div class="pt-6 border-t border-border-soft mt-8 text-center text-xs font-mono text-botanical font-bold uppercase tracking-wider">
+            UPB Medellín
+          </div>
+        </div>
+
+        <!-- Ficha 2: Audrey Rodríguez -->
+        <div class="bg-surface rounded-3xl p-8 sm:p-12 border-2 border-border-soft shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div>
+            <div class="relative w-48 h-48 mx-auto mt-2 mb-8 p-2 rounded-3xl bg-surface-warm border-2 border-border-soft shadow-lg group">
+              <img 
+                id="fotoAudrey"
+                src="img/audrey.jpeg" 
+                alt="Audrey Rodríguez" 
+                class="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
+                onerror="this.src='https://placehold.co/500x500/FDF0F6/882255?text=Foto+Audrey'"
+              >
+            </div>
+
+            <div class="text-center mb-6">
+              <h3 class="font-serif text-3xl sm:text-4xl text-charcoal font-bold">
+                Audrey Rodríguez
+              </h3>
+              <p class="font-sans text-xs sm:text-sm font-semibold text-cojardicom uppercase tracking-wider mt-1.5">
+                Estudiante de la Facultad de Periodismo y Comunicación
+              </p>
+            </div>
+
+            <div class="font-serif text-charcoal text-base sm:text-lg leading-relaxed space-y-4 border-t border-border-soft pt-6 text-left">
+              <p>
+                Mi nombre es Audrey Rodríguez, soy estudiante de Comunicación Social y Periodismo de la Universidad Pontificia Bolivariana.
+              </p>
+              <p class="text-muted text-base leading-relaxed">
+                Agradezco especialmente a Elsy Torreglosa, Rosa Giraldo y Andrea Pérez por su apoyo y disposición durante la realización de este proyecto, así como a las organizaciones Cojardicom y Abracadabra por abrirme sus puertas y contribuir a esta experiencia.
+              </p>
+            </div>
+          </div>
+
+          <!-- UPB Medellín Centrado -->
+          <div class="pt-6 border-t border-border-soft mt-8 text-center text-xs font-mono text-cojardicom font-bold uppercase tracking-wider">
+            UPB Medellín
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- VISOR INMERSIVO EN PANTALLA COMPLETA (IFRAME) -->
+  <div id="liveExperienceModal" class="fixed inset-0 z-50 hidden bg-charcoal text-paper flex flex-col justify-between overflow-hidden">
+    <header class="h-16 px-6 sm:px-8 border-b border-white/15 flex items-center justify-between bg-charcoal/95 backdrop-blur shrink-0 z-20">
+      <button onclick="closeLiveExperience()" class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 hover:bg-botanical text-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>Regresar al Menú</span>
+      </button>
+
+      <div class="flex items-center gap-2 bg-black/50 p-1.5 rounded-full border border-white/15">
+        <button id="tabCojardicom" onclick="switchLiveExperience('cojardicom')" class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all">
+          Cojardicom
+        </button>
+        <button id="tabJarum" onclick="switchLiveExperience('jarum')" class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all">
+          JARUM
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="reloadLiveFrame()" title="Recargar" class="p-2 text-paper/70 hover:text-white rounded-full hover:bg-white/10 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        </button>
+        <a id="externalExpLink" href="#" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-paper transition-colors">
+          <span>Pestaña externa</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        </a>
+      </div>
+    </header>
+
+    <div class="flex-1 relative w-full h-[calc(100vh-64px)] bg-charcoal">
+      <div id="iframeLoader" class="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-charcoal z-10">
+        <div class="w-10 h-10 border-4 border-botanical/20 border-t-botanical rounded-full animate-spin"></div>
+        <p class="font-serif text-sm text-paper/80" id="iframeLoaderText">Cargando...</p>
+      </div>
+
+      <iframe 
+        id="liveExperienceFrame" 
+        src="about:blank"
+        title="Experiencia Integrada Moravia Viva"
+        class="w-full h-full border-0 relative z-20"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        loading="lazy"
+        onload="onFrameLoaded()"
+      ></iframe>
+    </div>
+  </div>
+
+  <!-- MODAL: PRESENTACIÓN INSTITUCIONAL -->
+  <div id="modalPresentacion" class="fixed inset-0 z-50 hidden bg-charcoal/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-paper max-w-2xl w-full rounded-3xl shadow-2xl border-2 border-border-soft overflow-hidden my-8">
+      <div class="p-6 sm:p-8 border-b border-border-soft flex items-center justify-between bg-surface-warm/50">
+        <div>
+          <span class="text-xs uppercase font-bold tracking-[0.25em] text-botanical">Curaduría Editorial</span>
+          <h3 class="font-serif text-3xl text-charcoal font-bold mt-1">Presentación del Proyecto</h3>
+        </div>
+        <button onclick="toggleModal('modalPresentacion')" class="p-2 text-muted hover:text-charcoal rounded-full hover:bg-paper">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-6 sm:p-8 space-y-6 font-serif text-charcoal text-base sm:text-lg leading-relaxed max-h-[70vh] overflow-y-auto">
+        <p>
+          <strong>Moravia Viva</strong> es una plataforma de periodismo inmersivo y preservación comunitaria concebida para visibilizar el proceso de resiliencia del sector El Morro en Medellín.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans text-xs pt-1">
+          <div class="p-4 rounded-2xl bg-surface border border-border-soft">
+            <span class="font-bold text-botanical block mb-1 uppercase tracking-wider text-sm">Entidades Articuladas</span>
+            <p class="text-muted text-xs leading-normal">Universidad Pontificia Bolivariana (UPB) · Curadores de Memoria.</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-surface border border-border-soft">
+            <span class="font-bold text-terracotta block mb-1 uppercase tracking-wider text-sm">Metodología</span>
+            <p class="text-muted text-xs leading-normal">Archivo fotográfico de campo, cartografía social y recopilación oral.</p>
+          </div>
+        </div>
+
+        <h4 class="font-serif text-2xl text-charcoal font-bold pt-4 border-t border-border-soft">Red Comunitaria</h4>
+        <div class="space-y-3 font-sans text-xs sm:text-sm">
+          <div class="p-4 rounded-2xl bg-cojardicom-surface border border-cojardicom/20 flex justify-between items-center">
+            <div>
+              <strong class="text-cojardicom text-sm sm:text-base">Cojardicom (2014):</strong>
+              <p class="text-muted">Fitorremediación y cultivo en terrazas sobre el antiguo botadero.</p>
+            </div>
+            <button onclick="toggleModal('modalPresentacion'); openLiveExperience('cojardicom')" class="px-3 py-1.5 rounded-lg bg-cojardicom text-white font-bold text-xs uppercase">Abrir</button>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-terracotta-surface border border-terracotta/20 flex justify-between items-center">
+            <div>
+              <strong class="text-terracotta text-sm sm:text-base">Abracadabra Academia de Danza:</strong>
+              <p class="text-muted">Formación artística infantil y juvenil a través del baile y semilleros.</p>
+            </div>
+            <button onclick="toggleModal('modalPresentacion'); toggleModal('modalAbracadabra')" class="px-3 py-1 rounded-lg bg-white text-terracotta font-bold text-xs uppercase">Detalles</button>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-ochre-surface border border-ochre/20 flex justify-between items-center">
+            <div>
+              <strong class="text-ochre text-sm sm:text-base">Jarum (2016):</strong>
+              <p class="text-muted">Jardineros Unidos custodios de los senderos ecológicos.</p>
+            </div>
+            <button onclick="toggleModal('modalPresentacion'); openLiveExperience('jarum')" class="px-3 py-1.5 rounded-lg bg-ochre text-white font-bold text-xs uppercase">Abrir</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 border-t border-border-soft bg-surface-warm/40 text-right">
+        <button onclick="toggleModal('modalPresentacion')" class="px-6 py-2.5 rounded-full bg-charcoal text-paper text-xs sm:text-sm uppercase font-bold">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LECTURA EXTENSA DE TEXTOS GUÍA -->
+  <div id="modalLectura" class="fixed inset-0 z-50 hidden bg-charcoal/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-paper max-w-3xl w-full rounded-3xl shadow-2xl border-2 border-border-soft overflow-hidden my-8">
+      <div class="p-6 sm:p-8 border-b border-border-soft flex items-center justify-between bg-surface-warm/50">
+        <div>
+          <span id="lecturaKicker" class="text-xs uppercase font-bold tracking-[0.25em] text-botanical">Archivo de Campo</span>
+          <h3 id="lecturaTitulo" class="font-serif text-3xl text-charcoal font-bold mt-1">Título</h3>
+          <p id="lecturaSubtitulo" class="font-serif text-sm text-muted italic mt-1"></p>
+        </div>
+        <button onclick="toggleModal('modalLectura')" class="p-2 text-muted hover:text-charcoal rounded-full hover:bg-paper">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div id="lecturaCuerpo" class="p-6 sm:p-8 font-serif text-charcoal text-lg sm:text-xl leading-relaxed space-y-4 max-h-[70vh] overflow-y-auto"></div>
+
+      <div class="p-6 border-t border-border-soft bg-surface-warm/40 flex justify-between items-center text-xs sm:text-sm">
+        <span class="text-muted font-sans font-semibold">Curadores de Memoria · UPB</span>
+        <button onclick="toggleModal('modalLectura')" class="px-6 py-2.5 rounded-full bg-charcoal text-paper uppercase font-bold">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ABRACADABRA ACADEMIA DE DANZA (ACTUALIZADO) -->
+  <div id="modalAbracadabra" class="fixed inset-0 z-50 hidden bg-charcoal/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-paper max-w-lg w-full rounded-3xl p-8 border-2 border-border-soft shadow-2xl space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-terracotta text-white flex items-center justify-center text-2xl font-serif font-bold">A</div>
+      <h3 class="font-serif text-3xl text-charcoal font-bold">Abracadabra Academia de Danza</h3>
+      <p class="font-serif text-charcoal text-base leading-relaxed">
+        Ubicada en el barrio Moravia de Medellín, es un espacio cultural que promueve la formación artística de niños, niñas y adolescentes a través del baile.
+      </p>
+      <p class="font-serif text-muted text-sm leading-relaxed">
+        Además, trabaja de la mano con otras corporaciones para desarrollar semilleros artísticos, brindando a sus integrantes oportunidades de formación, participación y crecimiento personal a través del arte.
+      </p>
+      <div class="pt-4 text-right">
+        <button onclick="toggleModal('modalAbracadabra')" class="px-6 py-2.5 rounded-full bg-charcoal text-paper text-xs uppercase font-bold">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIE DE PÁGINA -->
+  <footer class="bg-charcoal text-paper py-16 border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-6 pb-10 border-b border-white/10">
+        <div class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-2xl bg-botanical text-white flex items-center justify-center font-display font-bold text-base">M</span>
+          <span class="font-serif font-bold text-2xl text-white">Moravia Viva</span>
+        </div>
+        <div class="flex items-center gap-6 text-sm text-paper/80 font-sans font-semibold">
+          <button onclick="openLiveExperience('cojardicom')" class="hover:text-white transition-colors">Cojardicom Virtual</button>
+          <button onclick="openLiveExperience('jarum')" class="hover:text-white transition-colors">JARUM Web</button>
+          <button onclick="toggleModal('modalPresentacion')" class="hover:text-white transition-colors">Institucional</button>
+        </div>
+      </div>
+      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm text-paper/50 gap-3">
+        <p>&copy; Curadores de Memoria · UPB Medellín.</p>
+        <p class="italic font-serif">Por una vida digna y un barrio con memoria.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT: OPENSTREETMAP, TEXTOS Y EVENTOS -->
+  <script>
+    const APP_URLS = {
+      cojardicom: "https://diem-jln.github.io/recorrido-cojardicom/",
+      jarum: "https://diem-jln.github.io/jarum-web/"
+    };
+
+    let currentExp = null;
+    const modalExp = document.getElementById('liveExperienceModal');
+    const iframeExp = document.getElementById('liveExperienceFrame');
+    const loaderExp = document.getElementById('iframeLoader');
+    const loaderText = document.getElementById('iframeLoaderText');
+    const externalLink = document.getElementById('externalExpLink');
+    const tabCoj = document.getElementById('tabCojardicom');
+    const tabJar = document.getElementById('tabJarum');
+
+    const dropdownWrapper = document.getElementById('dropdownMenuWrapper');
+    const rightDropdown = document.getElementById('rightNavDropdown');
+    const chevronIcon = document.getElementById('dropdownChevron');
+
+    function toggleRightMenu() {
+      const isHidden = rightDropdown.classList.contains('hidden');
+      if (isHidden) {
+        rightDropdown.classList.remove('hidden');
+        chevronIcon.classList.add('rotate-180');
+      } else {
+        rightDropdown.classList.add('hidden');
+        chevronIcon.classList.remove('rotate-180');
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!dropdownWrapper.contains(e.target)) {
+        rightDropdown.classList.add('hidden');
+        chevronIcon.classList.remove('rotate-180');
+      }
+    });
+
+    function openLiveExperience(type) {
+      currentExp = type;
+      modalExp.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+
+      if (type === 'cojardicom') {
+        tabCoj.className = "px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all bg-cojardicom text-white";
+        tabJar.className = "px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all text-paper/70 hover:text-white";
+        loaderText.textContent = "Cargando Recorrido Cojardicom...";
+      } else {
+        tabCoj.className = "px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all text-paper/70 hover:text-white";
+        tabJar.className = "px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all bg-ochre text-white";
+        loaderText.textContent = "Cargando Plataforma JARUM...";
+      }
+
+      loaderExp.classList.remove('hidden');
+      iframeExp.src = APP_URLS[type];
+      externalLink.href = APP_URLS[type];
+    }
+
+    function switchLiveExperience(type) {
+      if (currentExp === type) return;
+      openLiveExperience(type);
+    }
+
+    function onFrameLoaded() {
+      if (iframeExp.src !== "about:blank") {
+        loaderExp.classList.add('hidden');
+      }
+    }
+
+    function reloadLiveFrame() {
+      if (currentExp && APP_URLS[currentExp]) {
+        loaderExp.classList.remove('hidden');
+        iframeExp.src = APP_URLS[currentExp];
+      }
+    }
+
+    function closeLiveExperience() {
+      modalExp.classList.add('hidden');
+      document.body.style.overflow = 'auto';
+      iframeExp.src = "about:blank";
+      currentExp = null;
+    }
+
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('progressBar').style.width = scrolled + '%';
+    });
+
+    function toggleModal(id) {
+      const m = document.getElementById(id);
+      m.classList.toggle('hidden');
+      document.body.style.overflow = m.classList.contains('hidden') ? 'auto' : 'hidden';
+    }
+
+    // BASE DE DATOS DE LOS MINI TEXTOS GUÍA
+    const textosData = {
+      cronica: {
+        kicker: "Crónica Narrativa · Brunella Angobaldo Pacora",
+        title: "Los jardineros que sembraron vida donde hubo basura",
+        sub: "En Moravia, una corporación nacida en 2016 convirtió el antiguo basurero de Medellín en jardín, y con él creció todo un barrio.",
+        paragraphs: [
+          "Subir al Morro de Moravia es caminar sobre una contradicción. Bajo la suela hay décadas de desechos; a los lados, barquillos, durantas y cintillas se mecen con la brisa. Huele a tierra mojada y a hierba recién cortada, un aroma limpio que parece no recordar nada. Desde la cima se ven el Parque Norte y el Jardín Botánico. Solo los senderos de memoria, con sus fotografías, se atreven a contar lo que fue este lugar.",
+          "En su vivero, Don William Gómez se sacude las manos en el pantalón y deja en el aire un olor a abono. Señala con el mentón las hileras de suculentas: «Todo lo que usted ve aquí nació sobre la basura», dice, sin presumir, como quien constata un hecho.",
+          "La historia empezó mucho antes de las flores. Miles de campesinos desplazados por la violencia llegaron a Medellín con la maleta cargada de miedo y encontraron su único lote disponible junto al botadero. En 1977 la Alcaldía oficializó el morro como relleno, aunque los desechos ya llegaban desde una década atrás. En 1983, Moravia tenía unas 15 000 personas. Ese año se abrió el relleno de la Curva de Rodas y cerraron el botadero. Pero la gente no se fue. Se quedó a construir su barrio sobre lo que la ciudad había desechado.",
+          "En 2001, los líderes fundaron la Corporación Líderes Unidos con Proyección Ciudadana. Se sentaron a decidir cómo querían su territorio, y de esas conversaciones salió buena parte del Plan de Intervención Integral. Llegaron la reubicación de familias y el programa «Medellín florece para la vida», con parcelas de fito y biorremediación. Faltaba quién cuidara ese jardín recién nacido.",
+          "«Alguien tenía que hacerlo —cuenta Don William mientras desmenuza un puñado de tierra entre los dedos—. Un jardín sin jardineros se vuelve monte.» Así, en febrero de 2016, nació Jarum, Jardineros Unidos de Moravia, una corporación sin ánimo de lucro surgida de un proyecto de intervención paisajística y social. Se propuso producir material vegetal, hacer jardinería y paisajismo, y guiar recorridos ecológicos. Pronto salió de los límites del morro. Llegó a la Institución Educativa El Bosque, donde apoya el proyecto ambiental escolar y el proyecto Compost Escuela.",
+          "Dos incendios, en 2007 y en agosto de 2017, calcinaron El Oasis y dejaron el aire cargado de humo y de pérdida. Aun así, Moravia resistió. Hacia 2018 recibía cerca de 3 000 turistas al año. Hoy, al caer la tarde, Don William recorre su vivero con una regadera: «Uno no siembra para ver crecer una planta —dice al fin— siembra para que el barrio crezca». En Moravia, la basura ya no es el final de la historia. Es el abono."
+        ]
+      },
+      elsy: {
+        kicker: "Testimonio Territorial · Elsy Torreglosa Gallego",
+        title: "Sembrar donde antes todo era basura",
+        sub: "Testimonio directo de resistencia y memoria botánica comunitaria",
+        paragraphs: [
+          "Llegué desplazada del Chocó con mis cuatro hijos a un cerro de desperdicios. Hoy, en ese mismo suelo donde levantamos techos a oscuras, cuido raíces para no olvidar de dónde venimos.",
+          "Cuando pisé el Morro de Moravia por primera vez, el hedor a podredumbre lo dominaba todo; había chinches y ratas por todas partes. No existían casas firmes, solo chozas de palos y plásticos temblando en la pendiente. Yo venía huyendo de Unguía con mis cuatro muchachos a cuestas. Allá teníamos madera, mulas y ganado, pero quedamos atrapados en un fuego cruzado donde la guerrilla nos sacaba por un lado, los paramilitares por el otro y el ejército apretaba en medio. Me tocó separarme de Héctor, el padre de mis hijos, y salir corriendo para salvarles la vida.",
+          "El Morro, recién llegados, fue un golpe seco. Mi hija mayor no aguantó ver las ratas caminar sobre los desechos y se soltó a llorar suplicándome que no nos quedáramos allí. En medio del desespero nos tendió la mano Gabriel, a quien todos conocían como Fruco. Nos recibió en el sótano de su casa: un rincón frío, sin piso, sin tuberías y sin baño. Pero era un refugio seguro.",
+          "Por esos días hacían obras en una tubería de aguas negras hacia Bello. Me levantaba a la madrugada a fritar buñuelos y empanadas para vendérselos a los obreros con chocolate caliente. Con amigos que sacaban arena del río y albañiles de la obra armamos un convite: primero levantamos las paredes del baño —al que le echábamos agua con baldes— y después fundimos el piso de cemento. A mi muchacha mayor le daba tanta vergüenza esa vivienda que jamás invitó a sus compañeras del colegio; años más tarde, cuando se hizo profesional en enfermería, se mudó a Bello. Para ella era la memoria de la carencia, pero para mí representó el punto de partida.",
+          "Esa necesidad despertó mi voz. Fruco vio que yo tenía facilidad para hablar con la comunidad, me dio trabajo en su tienda y empezó a llevarme a reuniones presentándome como lideresa. Aunque dormíamos en el sótano, las noches se pasaban en la parte alta. Nos sumamos a más de cien familias para ocupar el lote de La Faltadora. Abríamos zanjas con machete y barretón a oscuras para no alertar a la policía, y al amanecer las manos nos sangraban. Si el desalojo nos tumbaba los plásticos, al día siguiente comprábamos más estacas y volvíamos a clavar. Mi hija de doce años cuidaba a los pequeños mientras yo defendía ese pedazo de suelo.",
+          "Fue una escuela dura donde aprendí a masticar el silencio. En las asambleas del barrio los grupos armados imponían sus reglas y varios compañeros pagaron con su vida el reclamo comunal. Comprendí que para liderar se necesita coraje, pero sobre todo prudencia.",
+          "Canalicé esa terquedad hacia la planeación. En 2001 me gradué como promotora de desarrollo local en la Universidad Nacional y redactamos los planes barriales que todavía se conservan en el Centro de Desarrollo Cultural de Moravia. Soñamos y gestionamos ese centro cultural y las sedes de Buen Comienzo para que los niños del barrio no crecieran arrinconados. Viajé a Ciudad de México para exponer cómo una comunidad desplazada era capaz de transformar un botadero a cielo abierto en un parque ambiental, demostrando que sabíamos planear el territorio mejor que los técnicos de oficina.",
+          "Esa lucha decantó en 2014, cuando constituimos Cojardicom (Corporación de Jardineras y Jardineros Comunitarios de Moravia). El municipio nos entregó el vivero con siete mil plántulas. Como no se podía perforar el suelo por los gases y lixiviados de más de treinta metros de basura acumulada, diseñamos cultivos en canastos, tarros reciclados y chimeneas de ventilación.",
+          "El territorio, sin embargo, no da tregua. Durante la pandemia las disputas por el suelo volvieron a encenderse: nos trozaron mangueras, nos robaron los tanques de agua y machetearon los árboles que habíamos visto crecer rama por rama. Tuve que abandonar Moravia unos meses bajo amenaza de muerte porque defender el jardín estorbaba a quienes querían seguir lucilándose con lotes ilegales.",
+          "Hoy tengo sesenta y cuatro años y sigo subiendo a este morro. No me interesa disfrazar lo vivido con palabras bonitas ni discursos aprendidos. En este pedazo de montaña aprendí a sembrar comida y flores donde antes la ciudad solo arrojaba desperdicios. Cada hoja que se sostiene contra el viento es la prueba material de que aquí resistimos, cuidamos la tierra y no dejamos que nadie nos arranque."
+        ]
+      },
+      ensayo: {
+        kicker: "Reflexión Crítica · Brunella Angobaldo Pacora",
+        title: "La retórica del desalojo y la dignidad barrial",
+        sub: "Texto continuo sin imágenes sobre la soberanía popular",
+        paragraphs: [
+          "El discurso institucional históricamente insistió en catalogar al asentamiento bajo el estigma de la marginalidad técnica o el «riesgo geológico». Sin embargo, una mirada reposada revela una de las redes de ayuda mutua y soberanía barrial más complejas del siglo XX en Medellín.",
+          "Cuando las políticas públicas expulsaban a las familias de los campos a causa de la violencia bipartidista, la ciudad formal no les ofreció un techo, sino la ladera donde se arrojaba lo que sobraba. Convertir ese espacio en un ecosistema vivible, con escuelas comunitarias levantadas en domingo y comités de tugurianos organizados, no fue marginalidad: fue la máxima expresión de urbanismo popular y dignidad humana.",
+          "Moravia nos enseña que el territorio no es el suelo físico que otorgan los títulos de propiedad, sino el cuerpo colectivo que resiste las palas mecánicas y es capaz de convertir un basurero en un jardín botánico."
+        ]
+      }
+    };
+
+    function openReading(key) {
+      const data = textosData[key];
+      if (!data) return;
+      document.getElementById('lecturaKicker').textContent = data.kicker;
+      document.getElementById('lecturaTitulo').textContent = data.title;
+      document.getElementById('lecturaSubtitulo').textContent = data.sub;
+      document.getElementById('lecturaCuerpo').innerHTML = data.paragraphs.map(p => `<p>${p}</p>`).join('');
+      toggleModal('modalLectura');
+    }
+
+    // MAPA LEAFLET: UBICACIONES EXACTAS CON OPENSTREETMAP
+    let map = null;
+    const MORAVIA_CENTER = [6.2770, -75.5665];
+
+    const orgLocations = {
+      cojardicom: {
+        coords: [6.2763, -75.5655],
+        name: "Corporación Cojardicom",
+        desc: "Ubicada en El Morro de Moravia. Vivero y jardinería comunitaria.",
+        color: "#882255",
+        action: "cojardicom"
+      },
+      abracadabra: {
+        coords: [6.27685, -75.56775],
+        name: "Abracadabra Academia de Danza",
+        desc: "Calle 78C # 54-17, Moravia. Espacio cultural de baile y semilleros artísticos.",
+        color: "#D4633B",
+        action: "abracadabra"
+      },
+      jarum: {
+        coords: [6.2783917, -75.5678490],
+        name: "Corporación JARUM",
+        desc: "Jardineros Unidos de Moravia (6.2783917, -75.5678490).",
+        color: "#E29023",
+        action: "jarum"
+      }
+    };
+
+    function initMoraviaMap() {
+      if (map) return;
+
+      map = L.map('moraviaMap', {
+        center: MORAVIA_CENTER,
+        zoom: 16,
+        minZoom: 15,
+        maxZoom: 18,
+        scrollWheelZoom: false,
+        zoomControl: false,
+        attributionControl: false
+      });
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+      // POLÍGONO DE EL MORRO (7,6 HECTÁREAS)
+      const morroPolygonCoords = [
+        [6.2782, -75.5665],
+        [6.2788, -75.5654],
+        [6.2781, -75.5638],
+        [6.2764, -75.5635],
+        [6.2748, -75.5644],
+        [6.2747, -75.5663],
+        [6.2762, -75.5673]
+      ];
+
+      L.polygon(morroPolygonCoords, {
+        color: '#10B981',
+        weight: 3,
+        opacity: 0.95,
+        fillColor: '#059669',
+        fillOpacity: 0.22,
+        dashArray: '6, 8'
+      }).addTo(map).bindTooltip("<strong>Área de El Morro</strong><br>7,6 hectáreas de fitorremediación", {
+        permanent: false,
+        direction: 'center',
+        className: 'bg-charcoal text-white text-xs p-1.5 rounded-lg border border-emerald-400'
+      });
+
+      // Marcadores de las 3 corporaciones
+      Object.keys(orgLocations).forEach(key => {
+        const item = orgLocations[key];
+
+        const customIcon = L.divIcon({
+          className: 'org-marker',
+          html: `
+            <div class="relative flex items-center justify-center -translate-x-1/2 -translate-y-1/2 group cursor-pointer" onclick="flyToOrg('${key}')">
+              <div class="absolute w-10 h-10 rounded-full marker-pulse" style="background-color: ${item.color}45"></div>
+              <div class="absolute w-7 h-7 rounded-full border-2 border-white/70" style="border-color: ${item.color}"></div>
+              <div class="relative w-4 h-4 rounded-full border-2 border-white shadow-xl" style="background-color: ${item.color}"></div>
+              <div class="absolute left-6 whitespace-nowrap bg-charcoal text-paper text-xs font-bold px-2.5 py-1 rounded-md border border-white/20 shadow-xl pointer-events-none group-hover:scale-110 transition-transform">
+                ${item.name}
+              </div>
+            </div>
+          `,
+          iconSize: [0, 0]
+        });
+
+        const marker = L.marker(item.coords, { icon: customIcon }).addTo(map);
+
+        let actionBtn = '';
+        if (key === 'abracadabra') {
+          actionBtn = `<button onclick="document.getElementById('abracadabra-block').scrollIntoView({behavior:'smooth'})" class="mt-3 w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs uppercase tracking-wider transition-colors">Ver Recorrido &rarr;</button>`;
+        } else {
+          actionBtn = `<button onclick="openLiveExperience('${item.action}')" class="mt-3 w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs uppercase tracking-wider transition-colors">Ver Recorrido &rarr;</button>`;
+        }
+
+        marker.bindPopup(`
+          <div class="p-2 space-y-1">
+            <span class="text-[10px] font-mono tracking-widest uppercase text-ochre font-bold block">Organización Barrial</span>
+            <h4 class="font-serif font-bold text-base text-white">${item.name}</h4>
+            <p class="font-serif text-xs text-white/80 leading-snug">${item.desc}</p>
+            ${actionBtn}
+          </div>
+        `);
+      });
+    }
+
+    function flyToOrg(key) {
+      const item = orgLocations[key];
+      if (item && map) {
+        map.flyTo(item.coords, 17, { duration: 1.2 });
+      }
+    }
+
+    function resetMapView() {
+      if (map) {
+        map.flyTo(MORAVIA_CENTER, 16, { duration: 1.2 });
+      }
+    }
+
+    window.addEventListener('load', () => {
+      initMoraviaMap();
+      setTimeout(() => { if (map) map.invalidateSize(); }, 200);
+      setTimeout(() => { if (map) map.invalidateSize(); }, 600);
+      setTimeout(() => { if (map) map.invalidateSize(); }, 1200);
+    });
+
+    const mapElement = document.getElementById('moraviaMap');
+    if ('IntersectionObserver' in window && mapElement) {
+      const mapObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && map) {
+            map.invalidateSize();
+          }
+        });
+      }, { threshold: 0.1 });
+      mapObserver.observe(mapElement);
+    }
+
+    window.addEventListener('resize', () => {
+      if (map) map.invalidateSize();
+    });
+  </script>
+</body>
+</html>
