@@ -120,10 +120,15 @@
   <header class="fixed top-0 left-0 right-0 z-40 bg-[#FAF8F5]/96 backdrop-blur-md border-b border-border-soft shadow-xs transition-all duration-200">
     <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 h-24 flex items-center justify-between">
       
-      <!-- LOGO Y TÍTULO -->
+      <!-- LOGO EN FORMATO JPEG Y TÍTULO -->
       <a href="#inicio" class="flex items-center gap-4 group">
-        <div class="w-12 h-12 rounded-2xl bg-botanical text-paper flex items-center justify-center font-display font-bold text-2xl shadow-md group-hover:bg-botanical-light transition-all">
-          M
+        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden shadow-md border border-border-soft flex items-center justify-center bg-surface group-hover:border-botanical transition-all shrink-0">
+          <img 
+            src="img/logo.jpeg" 
+            alt="Logo Moravia Viva" 
+            class="w-full h-full object-cover" 
+            onerror="this.src='https://placehold.co/140x140/14462B/FAF8F5?text=Logo'"
+          >
         </div>
         <div class="flex flex-col">
           <span class="font-serif font-extrabold text-2xl sm:text-3xl tracking-tight text-charcoal group-hover:text-botanical transition-colors">Moravia Viva</span>
@@ -138,7 +143,7 @@
           <span>Cojardicom</span>
         </button>
 
-        <button onclick="document.getElementById('abracadabra-block').scrollIntoView({behavior:'smooth'})" class="px-5 py-2.5 rounded-full bg-terracotta-surface text-terracotta border border-terracotta/30 hover:bg-terracotta hover:text-white transition-all text-xs lg:text-sm font-extrabold flex items-center gap-2 shadow-2xs">
+        <button onclick="openLiveExperience('abracadabra')" class="px-5 py-2.5 rounded-full bg-terracotta-surface text-terracotta border border-terracotta/30 hover:bg-terracotta hover:text-white transition-all text-xs lg:text-sm font-extrabold flex items-center gap-2 shadow-2xs">
           <span class="w-2.5 h-2.5 rounded-full bg-terracotta"></span>
           <span>Abracadabra</span>
         </button>
@@ -149,7 +154,7 @@
         </button>
       </nav>
 
-      <!-- DERECHA: MENÚ DESPLEGABLE COMPLETAMENTE OPACO -->
+      <!-- DERECHA: MENÚ DESPLEGABLE CON FONDO OPACO -->
       <div class="relative flex items-center gap-3" id="dropdownMenuWrapper">
         <button id="dropdownTriggerBtn" onclick="toggleRightMenu()" class="px-5 py-2.5 rounded-full border-2 border-border-soft bg-surface hover:bg-surface-warm font-sans font-extrabold text-xs sm:text-sm uppercase tracking-wider text-charcoal shadow-2xs transition-all flex items-center gap-2.5 group">
           <span>Explorar</span>
@@ -158,8 +163,8 @@
           </svg>
         </button>
 
-        <!-- Panel del Desplegable (Fondo Blanco Sólido y Borde Grueso para cero transparencia) -->
-        <div id="rightNavDropdown" class="hidden absolute right-0 top-full mt-3 w-72 bg-white rounded-2xl border-2 border-border-soft shadow-2xl p-3 z-50 transform origin-top-right transition-all">
+        <!-- Panel del Desplegable (Totalmente Sólido) -->
+        <div id="rightNavDropdown" class="hidden absolute right-0 top-full mt-3 w-72 bg-[#FAF8F5] rounded-2xl border-2 border-border-soft shadow-2xl p-3 z-50 transform origin-top-right transition-all">
           <div class="px-3.5 py-2 border-b border-border-soft mb-1 text-[11px] font-bold uppercase tracking-widest text-muted">
             Índice del Reportaje
           </div>
@@ -206,6 +211,9 @@
           <div class="md:hidden pt-2 mt-2 border-t border-border-soft space-y-1">
             <button onclick="toggleRightMenu(); openLiveExperience('cojardicom')" class="w-full text-left px-3.5 py-2 rounded-lg bg-cojardicom-surface text-cojardicom text-xs font-bold">
               Abrir Recorrido Cojardicom &rarr;
+            </button>
+            <button onclick="toggleRightMenu(); openLiveExperience('abracadabra')" class="w-full text-left px-3.5 py-2 rounded-lg bg-terracotta-surface text-terracotta text-xs font-bold">
+              Abrir Academia Abracadabra &rarr;
             </button>
             <button onclick="toggleRightMenu(); openLiveExperience('jarum')" class="w-full text-left px-3.5 py-2 rounded-lg bg-ochre-surface text-ochre text-xs font-bold">
               Abrir Plataforma JARUM &rarr;
@@ -335,7 +343,7 @@
       </div>
     </section>
 
-    <!-- SECCIÓN 3: BLOQUES DE LAS 3 CORPORACIONES (SOLO BOTÓN "VER RECORRIDO") -->
+    <!-- SECCIÓN 3: BLOQUES DE LAS 3 CORPORACIONES (ÚNICAMENTE BOTÓN "VER RECORRIDO") -->
     <section class="py-20 sm:py-28 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 space-y-28">
 
       <!-- BLOQUE 1: COJARDICOM -->
@@ -391,10 +399,10 @@
         </div>
       </article>
 
-      <!-- BLOQUE 2: ABRACADABRA ACADEMIA DE DANZA (ACTUALIZADO) -->
+      <!-- BLOQUE 2: ABRACADABRA (CON ENLACE INTEGRADO) -->
       <article id="abracadabra-block" class="scroll-mt-28 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
         <div class="lg:col-span-6 order-2 lg:order-1">
-          <div class="relative rounded-3xl overflow-hidden shadow-xl border-2 border-border-soft bg-surface group cursor-pointer" onclick="toggleModal('modalAbracadabra')">
+          <div class="relative rounded-3xl overflow-hidden shadow-xl border-2 border-border-soft bg-surface group cursor-pointer" onclick="openLiveExperience('abracadabra')">
             <img 
               src="img/abracadabra.jpeg" 
               alt="Abracadabra Academia de Danza en Moravia" 
@@ -409,18 +417,18 @@
             </div>
             <div class="absolute bottom-5 left-6 right-6 text-paper">
               <span class="text-xs uppercase tracking-widest text-terracotta-light font-bold">Expresión &amp; Baile</span>
-              <p class="font-serif text-sm sm:text-base">Espacio cultural de danza y semilleros artísticos en el barrio.</p>
+              <p class="font-serif text-sm sm:text-base">Danza, semilleros culturales y formación artística en Moravia.</p>
             </div>
           </div>
         </div>
 
         <div class="lg:col-span-6 order-1 lg:order-2 space-y-6">
           <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-terracotta-surface text-terracotta font-bold text-xs tracking-wider uppercase border border-terracotta/20">
-            <span class="w-2 h-2 rounded-full bg-terracotta"></span> Corporación 02 · Arte, Danza e Infancia
+            <span class="w-2 h-2 rounded-full bg-terracotta"></span> Corporación 02 · Academia de Danza
           </div>
           
           <h3 class="font-serif text-4xl sm:text-5xl text-charcoal leading-snug font-bold">
-            Abracadabra: Academia de Danza y Crecimiento Personal
+            Abracadabra: Academia de Danza y Semilleros Artísticos
           </h3>
           
           <div class="font-serif text-charcoal text-lg sm:text-xl leading-relaxed space-y-4">
@@ -433,7 +441,7 @@
           </div>
 
           <div class="pt-2">
-            <button onclick="toggleModal('modalAbracadabra')" class="px-7 py-3.5 rounded-full bg-terracotta text-white text-xs sm:text-sm font-bold uppercase tracking-wider hover:bg-terracotta-dark transition-colors shadow-md flex items-center gap-2">
+            <button onclick="openLiveExperience('abracadabra')" class="px-7 py-3.5 rounded-full bg-terracotta text-white text-xs sm:text-sm font-bold uppercase tracking-wider hover:bg-terracotta-dark transition-colors shadow-md flex items-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
               <span>Ver Recorrido</span>
             </button>
@@ -553,14 +561,14 @@
           <div class="bg-surface rounded-3xl p-8 border-2 border-border-soft shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
             <div>
               <div class="flex items-center justify-between text-xs font-extrabold uppercase tracking-wider text-ochre mb-4">
-                <span>Ensayo Crítico</span>
+                <span>Reflexión Crítica</span>
                 <span>03</span>
               </div>
               <h3 class="font-serif text-2xl sm:text-3xl text-charcoal mb-3 leading-snug font-bold">
-                La retórica del desalojo y la dignidad barrial
+                Moravia: las organizaciones que convirtieron un basurero en un hogar
               </h3>
               <p class="font-serif text-muted text-base leading-relaxed mb-6">
-                Texto continuo sin imágenes: análisis sobre cómo la estigmatización institucional ignoró la compleja red de urbanismo popular, comités de tugurianos y teología de la liberación que levantó el barrio.
+                En lo alto del Morro de Moravia, donde durante doce años se amontonó la basura de toda una ciudad, hoy crecen más de 70 especies de plantas. Ese cambio lo hicieron, en buena parte, las organizaciones que nacieron entre los mismos vecinos del barrio...
               </p>
             </div>
             <button onclick="openReading('ensayo')" class="w-full py-3 px-4 rounded-xl border border-border-soft bg-paper hover:bg-ochre hover:text-white hover:border-ochre text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors text-charcoal">
@@ -572,7 +580,7 @@
       </div>
     </section>
 
-    <!-- SECCIÓN 5: EQUIPO INVESTIGADOR (BRUNELLA & AUDREY UNIFICADAS) -->
+    <!-- SECCIÓN 5: EQUIPO INVESTIGADOR -->
     <section id="equipo" class="py-20 sm:py-28 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
       <div class="max-w-3xl mx-auto text-center mb-16">
         <span class="text-xs sm:text-sm font-bold uppercase tracking-[0.28em] text-botanical">Curaduría, Investigación &amp; Realización</span>
@@ -589,7 +597,7 @@
         <!-- Ficha 1: Brunella Angobaldo Pacora -->
         <div class="bg-surface rounded-3xl p-8 sm:p-12 border-2 border-border-soft shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
           <div>
-            <div class="relative w-48 h-48 mx-auto mt-2 mb-8 p-2 rounded-3xl bg-surface-warm border-2 border-border-soft shadow-lg group">
+            <div class="relative w-52 h-52 mx-auto my-10 p-3 rounded-3xl bg-surface-warm border-2 border-border-soft shadow-lg group">
               <img 
                 id="fotoBrunella"
                 src="img/brunella.jpeg" 
@@ -603,7 +611,7 @@
               <h3 class="font-serif text-3xl sm:text-4xl text-charcoal font-bold">
                 Brunella Angobaldo Pacora
               </h3>
-              <p class="font-sans text-xs sm:text-sm font-semibold text-terracotta uppercase tracking-wider mt-1.5">
+              <p class="font-sans text-xs sm:text-sm font-semibold text-terracotta uppercase tracking-wider mt-2">
                 Estudiante de la Facultad de Periodismo y Comunicación
               </p>
             </div>
@@ -618,8 +626,7 @@
             </div>
           </div>
 
-          <!-- UPB Medellín Centrado -->
-          <div class="pt-6 border-t border-border-soft mt-8 text-center text-xs font-mono text-botanical font-bold uppercase tracking-wider">
+          <div class="pt-6 border-t border-border-soft mt-8 text-center text-xs font-mono font-bold text-botanical uppercase tracking-widest">
             UPB Medellín
           </div>
         </div>
@@ -627,7 +634,7 @@
         <!-- Ficha 2: Audrey Rodríguez -->
         <div class="bg-surface rounded-3xl p-8 sm:p-12 border-2 border-border-soft shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
           <div>
-            <div class="relative w-48 h-48 mx-auto mt-2 mb-8 p-2 rounded-3xl bg-surface-warm border-2 border-border-soft shadow-lg group">
+            <div class="relative w-52 h-52 mx-auto my-10 p-3 rounded-3xl bg-surface-warm border-2 border-border-soft shadow-lg group">
               <img 
                 id="fotoAudrey"
                 src="img/audrey.jpeg" 
@@ -641,7 +648,7 @@
               <h3 class="font-serif text-3xl sm:text-4xl text-charcoal font-bold">
                 Audrey Rodríguez
               </h3>
-              <p class="font-sans text-xs sm:text-sm font-semibold text-cojardicom uppercase tracking-wider mt-1.5">
+              <p class="font-sans text-xs sm:text-sm font-semibold text-cojardicom uppercase tracking-wider mt-2">
                 Estudiante de la Facultad de Periodismo y Comunicación
               </p>
             </div>
@@ -656,8 +663,7 @@
             </div>
           </div>
 
-          <!-- UPB Medellín Centrado -->
-          <div class="pt-6 border-t border-border-soft mt-8 text-center text-xs font-mono text-cojardicom font-bold uppercase tracking-wider">
+          <div class="pt-6 border-t border-border-soft mt-8 text-center text-xs font-mono font-bold text-cojardicom uppercase tracking-widest">
             UPB Medellín
           </div>
         </div>
@@ -667,7 +673,7 @@
 
   </main>
 
-  <!-- VISOR INMERSIVO EN PANTALLA COMPLETA (IFRAME) -->
+  <!-- VISOR INMERSIVO EN PANTALLA COMPLETA (IFRAME CON TABS PARA LAS 3 ASOCIACIONES) -->
   <div id="liveExperienceModal" class="fixed inset-0 z-50 hidden bg-charcoal text-paper flex flex-col justify-between overflow-hidden">
     <header class="h-16 px-6 sm:px-8 border-b border-white/15 flex items-center justify-between bg-charcoal/95 backdrop-blur shrink-0 z-20">
       <button onclick="closeLiveExperience()" class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 hover:bg-botanical text-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all">
@@ -675,9 +681,13 @@
         <span>Regresar al Menú</span>
       </button>
 
+      <!-- Selector de 3 pestañas -->
       <div class="flex items-center gap-2 bg-black/50 p-1.5 rounded-full border border-white/15">
         <button id="tabCojardicom" onclick="switchLiveExperience('cojardicom')" class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all">
           Cojardicom
+        </button>
+        <button id="tabAbracadabra" onclick="switchLiveExperience('abracadabra')" class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all">
+          Abracadabra
         </button>
         <button id="tabJarum" onclick="switchLiveExperience('jarum')" class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all">
           JARUM
@@ -735,7 +745,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans text-xs pt-1">
           <div class="p-4 rounded-2xl bg-surface border border-border-soft">
             <span class="font-bold text-botanical block mb-1 uppercase tracking-wider text-sm">Entidades Articuladas</span>
-            <p class="text-muted text-xs leading-normal">Universidad Pontificia Bolivariana (UPB) · Curadores de Memoria.</p>
+            <p class="text-muted text-xs leading-normal">Universidad Pontificia Bolivariana (UPB).</p>
           </div>
           <div class="p-4 rounded-2xl bg-surface border border-border-soft">
             <span class="font-bold text-terracotta block mb-1 uppercase tracking-wider text-sm">Metodología</span>
@@ -755,10 +765,10 @@
 
           <div class="p-4 rounded-2xl bg-terracotta-surface border border-terracotta/20 flex justify-between items-center">
             <div>
-              <strong class="text-terracotta text-sm sm:text-base">Abracadabra Academia de Danza:</strong>
-              <p class="text-muted">Formación artística infantil y juvenil a través del baile y semilleros.</p>
+              <strong class="text-terracotta text-sm sm:text-base">Abracadabra:</strong>
+              <p class="text-muted">Academia de Danza y espacio cultural de semilleros artísticos infantiles y juveniles.</p>
             </div>
-            <button onclick="toggleModal('modalPresentacion'); toggleModal('modalAbracadabra')" class="px-3 py-1 rounded-lg bg-white text-terracotta font-bold text-xs uppercase">Detalles</button>
+            <button onclick="toggleModal('modalPresentacion'); openLiveExperience('abracadabra')" class="px-3 py-1.5 rounded-lg bg-terracotta text-white font-bold text-xs uppercase">Abrir</button>
           </div>
 
           <div class="p-4 rounded-2xl bg-ochre-surface border border-ochre/20 flex justify-between items-center">
@@ -796,27 +806,10 @@
       <div id="lecturaCuerpo" class="p-6 sm:p-8 font-serif text-charcoal text-lg sm:text-xl leading-relaxed space-y-4 max-h-[70vh] overflow-y-auto"></div>
 
       <div class="p-6 border-t border-border-soft bg-surface-warm/40 flex justify-between items-center text-xs sm:text-sm">
-        <span class="text-muted font-sans font-semibold">Curadores de Memoria · UPB</span>
+        <span class="text-muted font-sans font-semibold">UPB Medellín</span>
         <button onclick="toggleModal('modalLectura')" class="px-6 py-2.5 rounded-full bg-charcoal text-paper uppercase font-bold">
           Cerrar
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: ABRACADABRA ACADEMIA DE DANZA (ACTUALIZADO) -->
-  <div id="modalAbracadabra" class="fixed inset-0 z-50 hidden bg-charcoal/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-paper max-w-lg w-full rounded-3xl p-8 border-2 border-border-soft shadow-2xl space-y-4">
-      <div class="w-12 h-12 rounded-2xl bg-terracotta text-white flex items-center justify-center text-2xl font-serif font-bold">A</div>
-      <h3 class="font-serif text-3xl text-charcoal font-bold">Abracadabra Academia de Danza</h3>
-      <p class="font-serif text-charcoal text-base leading-relaxed">
-        Ubicada en el barrio Moravia de Medellín, es un espacio cultural que promueve la formación artística de niños, niñas y adolescentes a través del baile.
-      </p>
-      <p class="font-serif text-muted text-sm leading-relaxed">
-        Además, trabaja de la mano con otras corporaciones para desarrollar semilleros artísticos, brindando a sus integrantes oportunidades de formación, participación y crecimiento personal a través del arte.
-      </p>
-      <div class="pt-4 text-right">
-        <button onclick="toggleModal('modalAbracadabra')" class="px-6 py-2.5 rounded-full bg-charcoal text-paper text-xs uppercase font-bold">Cerrar</button>
       </div>
     </div>
   </div>
@@ -826,26 +819,30 @@
     <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
       <div class="flex flex-col sm:flex-row items-center justify-between gap-6 pb-10 border-b border-white/10">
         <div class="flex items-center gap-3">
-          <span class="w-10 h-10 rounded-2xl bg-botanical text-white flex items-center justify-center font-display font-bold text-base">M</span>
+          <div class="w-10 h-10 rounded-xl overflow-hidden shadow-md flex items-center justify-center bg-surface shrink-0">
+            <img src="img/logo.jpeg" alt="Logo Moravia Viva" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100/14462B/FAF8F5?text=Logo'">
+          </div>
           <span class="font-serif font-bold text-2xl text-white">Moravia Viva</span>
         </div>
         <div class="flex items-center gap-6 text-sm text-paper/80 font-sans font-semibold">
           <button onclick="openLiveExperience('cojardicom')" class="hover:text-white transition-colors">Cojardicom Virtual</button>
+          <button onclick="openLiveExperience('abracadabra')" class="hover:text-white transition-colors">Abracadabra Danza</button>
           <button onclick="openLiveExperience('jarum')" class="hover:text-white transition-colors">JARUM Web</button>
           <button onclick="toggleModal('modalPresentacion')" class="hover:text-white transition-colors">Institucional</button>
         </div>
       </div>
       <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm text-paper/50 gap-3">
-        <p>&copy; Curadores de Memoria · UPB Medellín.</p>
+        <p>&copy; Moravia Viva · UPB Medellín.</p>
         <p class="italic font-serif">Por una vida digna y un barrio con memoria.</p>
       </div>
     </div>
   </footer>
 
-  <!-- SCRIPT: OPENSTREETMAP, TEXTOS Y EVENTOS -->
+  <!-- SCRIPT: OPENSTREETMAP, TEXTOS Y GESTIÓN DE LAS 3 EXPERIENCIAS -->
   <script>
     const APP_URLS = {
       cojardicom: "https://diem-jln.github.io/recorrido-cojardicom/",
+      abracadabra: "https://diem-jln.github.io/abracadabra-danza/",
       jarum: "https://diem-jln.github.io/jarum-web/"
     };
 
@@ -856,6 +853,7 @@
     const loaderText = document.getElementById('iframeLoaderText');
     const externalLink = document.getElementById('externalExpLink');
     const tabCoj = document.getElementById('tabCojardicom');
+    const tabAbra = document.getElementById('tabAbracadabra');
     const tabJar = document.getElementById('tabJarum');
 
     const dropdownWrapper = document.getElementById('dropdownMenuWrapper');
@@ -885,12 +883,18 @@
       modalExp.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
 
+      const inactiveClass = "px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all text-paper/70 hover:text-white";
+      tabCoj.className = inactiveClass;
+      tabAbra.className = inactiveClass;
+      tabJar.className = inactiveClass;
+
       if (type === 'cojardicom') {
         tabCoj.className = "px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all bg-cojardicom text-white";
-        tabJar.className = "px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all text-paper/70 hover:text-white";
         loaderText.textContent = "Cargando Recorrido Cojardicom...";
-      } else {
-        tabCoj.className = "px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all text-paper/70 hover:text-white";
+      } else if (type === 'abracadabra') {
+        tabAbra.className = "px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all bg-terracotta text-white";
+        loaderText.textContent = "Cargando Academia Abracadabra...";
+      } else if (type === 'jarum') {
         tabJar.className = "px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold uppercase transition-all bg-ochre text-white";
         loaderText.textContent = "Cargando Plataforma JARUM...";
       }
@@ -972,12 +976,19 @@
       },
       ensayo: {
         kicker: "Reflexión Crítica · Brunella Angobaldo Pacora",
-        title: "La retórica del desalojo y la dignidad barrial",
-        sub: "Texto continuo sin imágenes sobre la soberanía popular",
+        title: "Moravia: las organizaciones que convirtieron un basurero en un hogar",
+        sub: "Por Brunella Angobaldo Pacora",
         paragraphs: [
-          "El discurso institucional históricamente insistió en catalogar al asentamiento bajo el estigma de la marginalidad técnica o el «riesgo geológico». Sin embargo, una mirada reposada revela una de las redes de ayuda mutua y soberanía barrial más complejas del siglo XX en Medellín.",
-          "Cuando las políticas públicas expulsaban a las familias de los campos a causa de la violencia bipartidista, la ciudad formal no les ofreció un techo, sino la ladera donde se arrojaba lo que sobraba. Convertir ese espacio en un ecosistema vivible, con escuelas comunitarias levantadas en domingo y comités de tugurianos organizados, no fue marginalidad: fue la máxima expresión de urbanismo popular y dignidad humana.",
-          "Moravia nos enseña que el territorio no es el suelo físico que otorgan los títulos de propiedad, sino el cuerpo colectivo que resiste las palas mecánicas y es capaz de convertir un basurero en un jardín botánico."
+          "En lo alto del Morro de Moravia, donde durante doce años se amontonó la basura de toda una ciudad, hoy crecen más de 70 especies de plantas. Ese cambio no lo hizo solo la Alcaldía ni lo hizo el tiempo: lo hicieron, en buena parte, las organizaciones que nacieron entre los mismos vecinos del barrio. Por eso nuestro proyecto final se acerca a cuatro de ellas, Abracadabra, Jarum, Cojardicom y Llévate Alguito Pues, para contar cómo nacieron, qué han logrado y cómo han hecho para no desaparecer.",
+          "<strong>Un barrio que nació sobre la basura</strong>",
+          "Moravia queda en la comuna 4, Aranjuez, en el norte de Medellín. Entre 1972 y 1984, el Morro fue el basurero municipal y recibió cerca de 1,5 millones de toneladas de desechos domésticos, hospitalarios e industriales. Al mismo tiempo, familias desplazadas por la violencia y la pobreza llegaron a vivir allí, muchas veces construyendo sus casas sobre esos mismos residuos. Para 2004, cuando se definió el proyecto de intervención integral de Moravia, el Morro ya tenía unos 10.000 habitantes. El reasentamiento de muchas familias debilitó los lazos entre vecinos. Fue en ese escenario donde la comunidad empezó a organizarse para recuperar el territorio, cuidarlo y ganarse la vida en él.",
+          "<strong>Cuatro organizaciones, cuatro maneras de resistir</strong>",
+          "<strong>Cojardicom.</strong> Es una organización sin ánimo de lucro ubicada en Moravia, Medellín, que trabaja por la transformación social y ambiental del territorio. Actualmente, está enfocada en la siembra de viveros para impulsar nuevos proyectos, promover el emprendimiento comunitario y generar oportunidades de desarrollo para las familias del sector.",
+          "<strong>Jarum.</strong> Es una corporación ambiental del Morro que tiene un vivero dentro del proyecto de intervención ambiental. En los encuentros del POT de la comuna 4, la comunidad pidió articular el cuidado del Morro con corporaciones como Jarum, y advirtió que su vivero se ve afectado por drenajes de aguas negras de viviendas nuevas. También participó en Archivo Vivo, el proyecto que documenta la memoria del barrio.",
+          "<strong>Llévate Alguito Pues.</strong> Es un colectivo de artesanos del barrio que, junto con Corserba y Mamachila Tours, ofrece recorridos y talleres a visitantes. En ellos se hace papel artesanal con papel reciclado y se convierten residuos textiles e industriales en artesanías y accesorios. Así, lo que antes era desecho se vuelve trabajo, arte y memoria.",
+          "<strong>Abracadabra.</strong> Academia de Danza, ubicada en el barrio Moravia de Medellín, es un espacio cultural que promueve la formación artística de niños, niñas y adolescentes a través del baile. Además, trabaja de la mano con otras corporaciones para desarrollar semilleros artísticos, brindando a sus integrantes oportunidades de formación, participación y crecimiento personal a través del arte.",
+          "<strong>Por qué contamos sus historias</strong>",
+          "La transformación de Moravia suele contarse desde las grandes obras: el macroproyecto, el reasentamiento, el Morro convertido en jardín. Nuestro proyecto quiere mirar el otro lado, el de las personas que se organizaron sin esperar a que alguien lo hiciera por ellas. Elegimos estas cuatro organizaciones porque juntas cuentan una misma historia en tres momentos. El primero es su nacimiento: casi todas surgieron de una necesidad concreta, como recuperar el suelo, generar ingresos o darles un nuevo uso a los residuos. El segundo son sus logros: jardines donde antes había basura, trabajo para mujeres y artesanos, y recorridos que hoy atraen visitantes de otros barrios y países. El tercero es su permanencia: cómo han sobrevivido a la falta de recursos, a los cambios en el barrio y al paso de los años. Cojardicom y Jarum hablan de la tierra y del cuidado ambiental; Llévate Alguito Pues, de la creatividad y el reciclaje, y Abracadabra, del arte como forma de proteger y formar a los niños."
         ]
       }
     };
@@ -992,7 +1003,7 @@
       toggleModal('modalLectura');
     }
 
-    // MAPA LEAFLET: UBICACIONES EXACTAS CON OPENSTREETMAP
+    // MAPA LEAFLET: UBICACIONES EXACTAS CON OPENSTREETMAP (ICONOS AMPLIADOS)
     let map = null;
     const MORAVIA_CENTER = [6.2770, -75.5665];
 
@@ -1006,8 +1017,8 @@
       },
       abracadabra: {
         coords: [6.27685, -75.56775],
-        name: "Abracadabra Academia de Danza",
-        desc: "Calle 78C # 54-17, Moravia. Espacio cultural de baile y semilleros artísticos.",
+        name: "Corporación Abracadabra",
+        desc: "Calle 78C # 54-17, Moravia. Academia de Danza y semilleros artísticos.",
         color: "#D4633B",
         action: "abracadabra"
       },
@@ -1064,7 +1075,7 @@
         className: 'bg-charcoal text-white text-xs p-1.5 rounded-lg border border-emerald-400'
       });
 
-      // Marcadores de las 3 corporaciones
+      // Marcadores con tamaño ampliado de iconos
       Object.keys(orgLocations).forEach(key => {
         const item = orgLocations[key];
 
@@ -1072,10 +1083,10 @@
           className: 'org-marker',
           html: `
             <div class="relative flex items-center justify-center -translate-x-1/2 -translate-y-1/2 group cursor-pointer" onclick="flyToOrg('${key}')">
-              <div class="absolute w-10 h-10 rounded-full marker-pulse" style="background-color: ${item.color}45"></div>
-              <div class="absolute w-7 h-7 rounded-full border-2 border-white/70" style="border-color: ${item.color}"></div>
-              <div class="relative w-4 h-4 rounded-full border-2 border-white shadow-xl" style="background-color: ${item.color}"></div>
-              <div class="absolute left-6 whitespace-nowrap bg-charcoal text-paper text-xs font-bold px-2.5 py-1 rounded-md border border-white/20 shadow-xl pointer-events-none group-hover:scale-110 transition-transform">
+              <div class="absolute w-16 h-16 rounded-full marker-pulse" style="background-color: ${item.color}50"></div>
+              <div class="absolute w-11 h-11 rounded-full border-2 border-white/80" style="border-color: ${item.color}"></div>
+              <div class="relative w-6 h-6 rounded-full border-2 border-white shadow-2xl" style="background-color: ${item.color}"></div>
+              <div class="absolute left-9 whitespace-nowrap bg-charcoal text-paper text-xs sm:text-sm font-extrabold px-3 py-1.5 rounded-xl border border-white/20 shadow-2xl pointer-events-none group-hover:scale-110 transition-transform">
                 ${item.name}
               </div>
             </div>
@@ -1085,19 +1096,12 @@
 
         const marker = L.marker(item.coords, { icon: customIcon }).addTo(map);
 
-        let actionBtn = '';
-        if (key === 'abracadabra') {
-          actionBtn = `<button onclick="document.getElementById('abracadabra-block').scrollIntoView({behavior:'smooth'})" class="mt-3 w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs uppercase tracking-wider transition-colors">Ver Recorrido &rarr;</button>`;
-        } else {
-          actionBtn = `<button onclick="openLiveExperience('${item.action}')" class="mt-3 w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs uppercase tracking-wider transition-colors">Ver Recorrido &rarr;</button>`;
-        }
-
         marker.bindPopup(`
           <div class="p-2 space-y-1">
             <span class="text-[10px] font-mono tracking-widest uppercase text-ochre font-bold block">Organización Barrial</span>
             <h4 class="font-serif font-bold text-base text-white">${item.name}</h4>
             <p class="font-serif text-xs text-white/80 leading-snug">${item.desc}</p>
-            ${actionBtn}
+            <button onclick="openLiveExperience('${item.action}')" class="mt-3 w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs uppercase tracking-wider transition-colors">Ver Recorrido &rarr;</button>
           </div>
         `);
       });
